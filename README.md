@@ -1,1 +1,3 @@
-Final Project due May 4th.
+# CS7643 Final Project
+
+Due May 4th.
