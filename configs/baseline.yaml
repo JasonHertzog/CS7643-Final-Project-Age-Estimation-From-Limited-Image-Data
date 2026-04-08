@@ -1,0 +1,14 @@
+# configs/baseline.yaml
+experiment_name: "baseline_scratch"
+seed: 42
+
+# Data parameters
+batch_size: 32
+num_workers: 4
+image_size: 128
+
+# Training parameters
+epochs: 20
+learning_rate: 0.001
+optimizer: "Adam"
+loss_function: "MSELoss"
