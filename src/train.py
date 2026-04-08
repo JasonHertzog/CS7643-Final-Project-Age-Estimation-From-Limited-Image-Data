@@ -32,7 +32,26 @@ def main():
     optimizer = torch.optim.Adam(model.parameters(), lr=config['learning_rate'])
     
     print("Setup complete! Ready to begin training epochs.")
-    # TODO: Add the actual epoch loop here
+    # Main Training Loop
+    for epoch in range(config['epochs']):
+        model.train()
+        running_loss = 0.0
+        
+        for batch_idx, (images, ages) in enumerate(dataloader):
+            optimizer.zero_grad()
+            outputs = model(images)
+            
+            # Squeeze outputs to match the shape of the ages tensor
+            loss = criterion(outputs.squeeze(), ages)
+            loss.backward()
+            optimizer.step()
+            
+            running_loss += loss.item()
+            
+        avg_loss = running_loss / len(dataloader)
+        print(f"Epoch [{epoch+1}/{config['epochs']}], Loss: {avg_loss:.4f}")
+        
+    print("Training completely finished!")
 
 if __name__ == "__main__":
     main()
