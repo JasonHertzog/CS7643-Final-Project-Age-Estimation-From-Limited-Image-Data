@@ -1,4 +1,3 @@
-# configs/baseline.yaml
 experiment_name: "baseline_scratch"
 seed: 42
 
