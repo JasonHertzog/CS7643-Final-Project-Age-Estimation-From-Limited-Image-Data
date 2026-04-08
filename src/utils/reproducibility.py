@@ -8,13 +8,16 @@ import torch
         Sets all random seeds for reproducibility.
         """
         random.seed(seed)
-        os.environ['PYTHONHASHSEED'] = str(seed)
         np.random.seed(seed)
         torch.manual_seed(seed)
-        torch.cuda.manual_seed(seed)
-        torch.cuda.manual_seed_all(seed)
         
-        torch.backends.cudnn.deterministic = True
-        torch.backends.cudnn.benchmark = False
+        # Check if CUDA (GPU) is available before seeding it
+        if torch.cuda.is_available():
+            torch.cuda.manual_seed(seed)
+            torch.cuda.manual_seed_all(seed)
+            torch.backends.cudnn.deterministic = True
+            torch.backends.cudnn.benchmark = False
         
-        print(f'Random seed set to: {seed}')
+        # Log the seed instead of a simple print
+        print(f"Reproducibility: Random seed set to {seed}")
+    
