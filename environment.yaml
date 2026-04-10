@@ -9,6 +9,7 @@ dependencies:
   - jupyter
   - pytest
   - tqdm
+  - pillow
   - pip
   - pip:
     - torch
