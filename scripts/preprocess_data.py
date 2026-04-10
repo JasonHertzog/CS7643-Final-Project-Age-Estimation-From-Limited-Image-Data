@@ -5,6 +5,8 @@ import csv
 import random
 from pathlib import Path
 from PIL import Image
+
+# using the set_seed function from our reproducibility utility
 from src.utils.reproducibility import set_seed
 
 # configuration
