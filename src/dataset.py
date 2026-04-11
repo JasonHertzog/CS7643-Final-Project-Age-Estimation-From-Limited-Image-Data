@@ -23,6 +23,12 @@ class UTKFaceDataset(Dataset):
         gender – 0 (male) or 1 (female)
         race   – 0–4 where 0 = White, 1 = Black, 2 = Asian, 3 = Indian, 4 = Other
     """
+
+    # Age bin boundaries (right-inclusive upper edges)
+    AGE_BINS = [0, 10, 20, 30, 40, 50, 60, 70, 80, 200]
+    AGE_BIN_LABELS = ["0-9", "10-19", "20-29", "30-39",
+                      "40-49", "50-59", "60-69", "70-79", "80+"]
+
     def __init__(self, csv_path: str | Path, transform=None):
         """
         Args:
@@ -58,6 +64,18 @@ class UTKFaceDataset(Dataset):
             "race":   torch.tensor(rec["race"],   dtype=torch.long),
         }
         return image, labels
+
+
+    # ------------------------------------------------------------------
+    # Helpers
+    # ------------------------------------------------------------------
+    @classmethod
+    def age_to_bin(cls, age: int) -> int:
+        """Map a raw age value to its bin index (for classification tasks)."""
+        for i in range(len(cls.AGE_BINS) - 1):
+            if age < cls.AGE_BINS[i + 1]:
+                return i
+        return len(cls.AGE_BINS) - 2  # clamp to last bin
 
 # ---------------------------------------------------------------------------
 # Transform factories
