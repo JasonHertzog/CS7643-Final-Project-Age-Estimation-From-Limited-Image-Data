@@ -1,24 +1,24 @@
-# write a testcase to test class method age_to_bin of the UTKFaceDataset class in src/dataset.py
-
 import unittest
-from dataset import UTKFaceDataset
+from src.dataset import UTKFaceDataset
 
 class TestUTKFaceDataset(unittest.TestCase):
     def test_age_to_bin(self):
-        dataset = UTKFaceDataset(csv_path="dummy.csv")  # We won't actually read the file
+        test_cases = [
+            (5,  0),  # 0-9
+            (15, 1),  # 10-19
+            (25, 2),  # 20-29
+            (35, 3),  # 30-39
+            (45, 4),  # 40-49
+            (55, 5),  # 50-59
+            (65, 6),  # 60-69
+            (75, 7),  # 70-79
+            (85, 8),  # 80+
+        ]
 
-        # Test age binning
-        self.assertEqual(dataset.age_to_bin(5), "0-9")
-        self.assertEqual(dataset.age_to_bin(15), "10-19")
-        self.assertEqual(dataset.age_to_bin(25), "20-29")
-        self.assertEqual(dataset.age_to_bin(35), "30-39")
-        self.assertEqual(dataset.age_to_bin(45), "40-49")
-        self.assertEqual(dataset.age_to_bin(55), "50-59")
-        self.assertEqual(dataset.age_to_bin(65), "60-69")
-        self.assertEqual(dataset.age_to_bin(75), "70-79")
-        self.assertEqual(dataset.age_to_bin(85), "80+") 
+        for age, expected_bin in test_cases:
+            with self.subTest(age=age):
+                self.assertEqual(UTKFaceDataset.age_to_bin(age), expected_bin)
 
 
-if __name__ == "__main__":    
-    unittest.main()  
-
+if __name__ == "__main__":
+    unittest.main()
