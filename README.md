@@ -29,4 +29,30 @@ For a smaller test run, you can download a single archive:
 python scripts/download_data.py --files part3.tar.gz
 ```
 
+After downloading, extract the archives into `data/raw/utkface/`:
+
+```bash
+tar -xzf data/raw/utkface/part1.tar.gz -C data/raw/utkface
+tar -xzf data/raw/utkface/part2.tar.gz -C data/raw/utkface
+tar -xzf data/raw/utkface/part3.tar.gz -C data/raw/utkface
+```
+
+## Preprocess Data
+
+The preprocessing script was implemented in `scripts/preprocess_data.py`.
+
+Before running it, update `RAW_DATA_DIR` near the top of that file so it points to the extracted UTKFace dataset directory.
+
+If you extracted the dataset inside this repo, that path should be:
+
+```python
+RAW_DATA_DIR = Path("data/raw/utkface")
+```
+
+Run preprocessing from the repository root inside the conda environment as a module:
+
+```bash
+python -m scripts.preprocess_data
+```
+
 Note: Please make sure that the images are NOT uploaded to GitHub directly.

@@ -10,7 +10,7 @@ from PIL import Image
 from src.utils.reproducibility import set_seed
 
 # configuration
-RAW_DATA_DIR = Path(r"PATH TO UTKFACE DATASET")  # <-- UPDATE THIS PATH (I used D:\utkface)
+RAW_DATA_DIR = Path(r"data/raw/utkface")  # <-- UPDATE THIS PATH (I used D:\utkface)
 OUTPUT_DIR = Path("data/processed")
 TRAIN_SPLIT = 0.8
 
