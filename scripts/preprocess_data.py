@@ -89,13 +89,15 @@ def main():
     # shuffle and split
     random.shuffle(valid_records)
 
+    orig_records = valid_records
+
     total = len(valid_records)
     train_end = int(total * TRAIN_SPLIT)
     valid_end = train_end + int(total * VALID_SPLIT)
 
-    train_records = valid_records[:train_end]
-    valid_records = valid_records[train_end:valid_end]
-    test_records = valid_records[valid_end:]
+    train_records = orig_records[:train_end]
+    valid_records = orig_records[train_end:valid_end]
+    test_records = orig_records[valid_end:]
 
     # save to CSV
     def save_csv(records, filename):
@@ -105,6 +107,7 @@ def main():
             writer.writerows(records)
 
     save_csv(train_records, "train.csv")
+    save_csv(valid_records, "valid.csv")
     save_csv(test_records, "test.csv")
 
     # save skipped files log
