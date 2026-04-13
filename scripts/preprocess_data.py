@@ -13,6 +13,8 @@ from src.utils.reproducibility import set_seed
 RAW_DATA_DIR = Path(r"data/raw/utkface")  # <-- UPDATE THIS PATH (I used D:\utkface)
 OUTPUT_DIR = Path("data/processed")
 TRAIN_SPLIT = 0.8
+VALID_SPLIT = 0.1
+TEST_SPLIT = 0.1
 
 set_seed(42)
 
@@ -87,9 +89,13 @@ def main():
     # shuffle and split
     random.shuffle(valid_records)
 
-    split_idx = int(len(valid_records) * TRAIN_SPLIT)
-    train_records = valid_records[:split_idx]
-    test_records = valid_records[split_idx:]
+    total = len(valid_records)
+    train_end = int(total * TRAIN_SPLIT)
+    valid_end = train_end + int(total * VALID_SPLIT)
+
+    train_records = valid_records[:train_end]
+    valid_records = valid_records[train_end:valid_end]
+    test_records = valid_records[valid_end:]
 
     # save to CSV
     def save_csv(records, filename):
@@ -108,9 +114,8 @@ def main():
         writer.writerows(skipped)
 
     # print summary (Definition of Done)
-    print(f"Valid samples: {len(valid_records)}")
     print(f"Skipped samples: {len(skipped)}")
-    print(f"Train: {len(train_records)} | Test: {len(test_records)}")
+    print(f"Train: {len(train_records)} | Valid: {len(valid_records)} | Test: {len(test_records)}")
 
     # Optional debug
     if skipped:
