@@ -21,6 +21,40 @@ def main() -> None:
     print("Sample files: ")
     for path in image_paths[:5]:
         print(path)
+    
+    sample_rows = []
+    skipped_count = 0
+
+    for path in image_paths:
+        age = parse_age_from_filename(path)
+
+        if age is None:
+            skipped_count += 1
+            continue
+        
+        relative_path = path.relative_to(REPO_ROOT)
+
+        sample_rows.append({
+            "path": str(relative_path),
+            "age": age
+        })
+    
+    print(f"Valid rows found: {len(sample_rows)}")
+    print(f"Skipped rows: {skipped_count}")
+    print("Sample metadata rows: ")
+    for row in sample_rows[:5]:
+        print(row)
 
 if __name__ == "__main__":
     main()
+
+def parse_age_from_filename(path: Path) -> int | None:
+    parts = path.stem.split("_")
+
+    if len(parts) < 4:
+        return None
+    
+    try:
+        return int(parts[0])
+    except ValueError:
+        return None
