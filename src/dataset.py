@@ -59,9 +59,10 @@ class UTKFaceDataset(Dataset):
             image = self.transform(image)
 
         labels = {
-            "age":    torch.tensor(rec["age"],    dtype=torch.float32),
-            "gender": torch.tensor(rec["gender"], dtype=torch.long),
-            "race":   torch.tensor(rec["race"],   dtype=torch.long),
+            "age":     torch.tensor(rec["age"],                      dtype=torch.float32),
+            "age_bin": torch.tensor(self.age_to_bin(rec["age"]),     dtype=torch.long),
+            "gender":  torch.tensor(rec["gender"],                   dtype=torch.long),
+            "race":    torch.tensor(rec["race"],                     dtype=torch.long),
         }
         return image, labels
 
@@ -81,28 +82,30 @@ class UTKFaceDataset(Dataset):
 # Transform factories
 # ---------------------------------------------------------------------------
 
-def get_transforms(split: str = "train") -> transforms.Compose:
+def get_transforms(split: str = "train", image_size: int = 224) -> transforms.Compose:
     """Return standard image transforms for the given split.
 
-    Training augmentations: horizontal flip + colour jitter.
+    Training augmentations: resize + horizontal flip + colour jitter.
     Val / test: deterministic resize only.
     """
     # Normalization values for ImageNet (since UTKFace images are similar in style to ImageNet).
     # this is easier than computing the mean and std of the UTKFace dataset, and should work well enough for our purposes.
     _IMAGENET_MEAN = [0.485, 0.456, 0.406]
-    _IMAGENET_STD = [0.229, 0.224, 0.225]   
+    _IMAGENET_STD = [0.229, 0.224, 0.225]
     normalize = transforms.Normalize(mean=_IMAGENET_MEAN, std=_IMAGENET_STD)
 
     if split == "train":
         return transforms.Compose([
+            transforms.Resize((image_size, image_size)),
             transforms.RandomHorizontalFlip(),
             transforms.ColorJitter(brightness=0.2, contrast=0.2, saturation=0.2),
             transforms.ToTensor(),
             normalize,
         ])
-    
+
     # for test or validation dataset, there is no augmentation
     return transforms.Compose([
+        transforms.Resize((image_size, image_size)),
         transforms.ToTensor(),
         normalize,
     ])
@@ -127,12 +130,12 @@ def get_dataloaders(
         num_workers   : Parallel workers for data loading.
 
     Returns:
-        ``{"train": ...,  "test": ...}``
+        ``{"train": ..., "val": ..., "test": ...}``
     """
     processed_dir = Path(processed_dir)
     loaders: dict[str, DataLoader] = {}
 
-    for split in ("train", "test"):
+    for split in ("train", "test", "val"):
         csv_path = processed_dir / f"{split}.csv"
         if not csv_path.exists():
             raise FileNotFoundError(
