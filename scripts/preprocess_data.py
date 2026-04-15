@@ -49,7 +49,9 @@ def main():
     skipped = []
 
     # walk through raw data
-    for root, _, files in os.walk(RAW_DATA_DIR):
+    # TODO - Fix this to actually be truly deterministic. 
+    for root, dirs, files in os.walk(RAW_DATA_DIR):
+        dirs.sort() # untested 7:23pm
         print(f"{root} -> {len(files)} files")
 
         for file in files:
