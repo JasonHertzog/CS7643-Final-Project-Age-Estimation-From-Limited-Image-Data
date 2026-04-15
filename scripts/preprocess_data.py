@@ -49,12 +49,11 @@ def main():
     skipped = []
 
     # walk through raw data
-    # TODO - Fix this to actually be truly deterministic. 
     for root, dirs, files in os.walk(RAW_DATA_DIR):
-        dirs.sort() # untested 7:23pm
+        dirs.sort()
         print(f"{root} -> {len(files)} files")
 
-        for file in files:
+        for file in sorted(files):
             # skip anything that doesn't resemble UTKFace naming
             if "_" not in file:
                 continue
