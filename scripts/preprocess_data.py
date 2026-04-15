@@ -49,10 +49,11 @@ def main():
     skipped = []
 
     # walk through raw data
-    for root, _, files in os.walk(RAW_DATA_DIR):
+    for root, dirs, files in os.walk(RAW_DATA_DIR):
+        dirs.sort()
         print(f"{root} -> {len(files)} files")
 
-        for file in files:
+        for file in sorted(files):
             # skip anything that doesn't resemble UTKFace naming
             if "_" not in file:
                 continue
@@ -107,7 +108,7 @@ def main():
             writer.writerows(records)
 
     save_csv(train_records, "train.csv")
-    save_csv(valid_records, "valid.csv")
+    save_csv(valid_records, "val.csv")
     save_csv(test_records, "test.csv")
 
     # save skipped files log
