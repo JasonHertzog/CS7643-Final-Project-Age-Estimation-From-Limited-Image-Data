@@ -55,4 +55,6 @@ Run preprocessing from the repository root inside the conda environment as a mod
 python -m scripts.preprocess_data
 ```
 
+This writes the reusable spilt files for reproducibility to `data/processed/` as `train.csv`, `val.csv`, and `test.csv`.
+
 Note: Please make sure that the images are NOT uploaded to GitHub directly.
