@@ -107,7 +107,7 @@ def main():
             writer.writerows(records)
 
     save_csv(train_records, "train.csv")
-    save_csv(valid_records, "valid.csv")
+    save_csv(valid_records, "val.csv")
     save_csv(test_records, "test.csv")
 
     # save skipped files log
