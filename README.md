@@ -2,7 +2,7 @@
 
 Due May 4th.
 
-## Step 0 - Environment Setup
+## Environment Setup
 
 To setup an appropriate Python environment, use the following commands. 
 ```
@@ -58,3 +58,12 @@ python -m scripts.preprocess_data
 This writes the reusable split files for reproducibility to `data/processed/` as `train.csv`, `val.csv`, and `test.csv`.
 
 Note: Please make sure that the images are NOT uploaded to GitHub directly.
+
+
+## Training loop
+
+A full training loop can be run by issuing the command 
+
+python -m scripts.train --config configs/baseline.yaml
+
+

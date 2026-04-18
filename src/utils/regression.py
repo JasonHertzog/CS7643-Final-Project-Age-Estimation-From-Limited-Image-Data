@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 
-from tqdm import tqdm_notebook
+from tqdm import tqdm
 
 def train(model, dataloader, optimizer, criterion, scheduler=None, device='cpu'):
     """Train for one epoch on UTKFace age regression.
@@ -27,7 +27,7 @@ def train(model, dataloader, optimizer, criterion, scheduler=None, device='cpu')
     total_loss = 0.0
     total_mae = 0.0
 
-    progress_bar = tqdm_notebook(dataloader, ascii=True)
+    progress_bar = tqdm(dataloader, ascii=True)
 
     for batch_idx, (images, labels) in enumerate(progress_bar):
         images = images.to(device)
@@ -70,7 +70,7 @@ def evaluate(model, dataloader, criterion, device='cpu'):
     total_mae = 0.0
 
     with torch.no_grad():
-        progress_bar = tqdm_notebook(dataloader, ascii=True)
+        progress_bar = tqdm(dataloader, ascii=True)
 
         for batch_idx, (images, labels) in enumerate(progress_bar):
             images = images.to(device)

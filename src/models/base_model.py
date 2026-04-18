@@ -2,9 +2,9 @@ import torch
 import torch.nn as nn
 from torchvision import models
 
-class AgeEstimationModel(nn.Module):
+class BaseAgeEstimationModel(nn.Module):
     def __init__(self):
-        super(AgeEstimationModel, self).__init__()
+        super(BaseAgeEstimationModel, self).__init__()
         # Using ResNet-18 as the baseline architecture
         self.backbone = models.resnet18(pretrained=True)
         
@@ -16,4 +16,4 @@ class AgeEstimationModel(nn.Module):
         return self.backbone(x)
 
 def get_model():
-    return AgeEstimationModel()
+    return BaseAgeEstimationModel()

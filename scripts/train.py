@@ -1,9 +1,10 @@
 import argparse
 import yaml
 import torch
-from utils.reproducibility import set_seed
-from data_loader import get_dataloaders
-from model import get_model
+from src.utils.reproducibility import set_seed
+from src.dataset import get_dataloaders
+from src.models.base_model import get_model
+from src.utils.regression import train, evaluate
 
 def load_config(config_path):
     """Loads configuration from a YAML file."""
@@ -23,34 +24,25 @@ def main():
     print("Pipeline Initialized. Loading data and model...")
     
     # Initialize Data
-    data_dir = 'data/raw/utkface' # Assumes standard repo structure
-    dataloader = get_dataloaders(data_dir, config['batch_size'], config['image_size'])
+    data_dir = 'data/processed' # Assumes standard repo structure
+    dataloaders = get_dataloaders(data_dir, config['batch_size'], config['image_size'])
     
     # Initialize Model & Optimizer
     model = get_model()
     criterion = torch.nn.MSELoss()
     optimizer = torch.optim.Adam(model.parameters(), lr=config['learning_rate'])
     
+    device = 'cuda' if torch.cuda.is_available() else 'mps' if torch.backends.mps.is_available() else 'cpu'
+    model = model.to(device)
+
     print("Setup complete! Ready to begin training epochs.")
-    # Main Training Loop
     for epoch in range(config['epochs']):
-        model.train()
-        running_loss = 0.0
-        
-        for batch_idx, (images, ages) in enumerate(dataloader):
-            optimizer.zero_grad()
-            outputs = model(images)
-            
-            # Squeeze outputs to match the shape of the ages tensor
-            loss = criterion(outputs.squeeze(), ages)
-            loss.backward()
-            optimizer.step()
-            
-            running_loss += loss.item()
-            
-        avg_loss = running_loss / len(dataloader)
-        print(f"Epoch [{epoch+1}/{config['epochs']}], Loss: {avg_loss:.4f}")
-        
+        _, train_loss, train_mae = train(model, dataloaders['train'], optimizer, criterion, device=device)
+        _, val_loss, val_mae = evaluate(model, dataloaders['val'], criterion, device=device)
+        print(f"Epoch [{epoch+1}/{config['epochs']}] "
+              f"Train Loss: {train_loss:.4f}, Train MAE: {train_mae:.4f} | "
+              f"Val Loss: {val_loss:.4f}, Val MAE: {val_mae:.4f}")
+
     print("Training completely finished!")
 
 if __name__ == "__main__":
