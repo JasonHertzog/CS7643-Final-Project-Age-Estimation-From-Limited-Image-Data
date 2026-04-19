@@ -1,4 +1,6 @@
 import argparse
+import copy
+import pathlib
 import yaml
 import torch
 from src.utils.reproducibility import set_seed
@@ -35,6 +37,10 @@ def main():
     device = 'cuda' if torch.cuda.is_available() else 'mps' if torch.backends.mps.is_available() else 'cpu'
     model = model.to(device)
 
+    best_mae = 1000
+    best_model = None
+    best_loss = None
+
     print("Setup complete! Ready to begin training epochs.")
     for epoch in range(config['epochs']):
         _, train_loss, train_mae = train(model, dataloaders['train'], optimizer, criterion, device=device)
@@ -43,7 +49,19 @@ def main():
               f"Train Loss: {train_loss:.4f}, Train MAE: {train_mae:.4f} | "
               f"Val Loss: {val_loss:.4f}, Val MAE: {val_mae:.4f}")
 
-    print("Training completely finished!")
+        
+        if val_mae < best_mae:
+            best_mae = val_mae
+            best_loss = val_loss
+            best_model = copy.deepcopy(model)
+            
+        if config['save_best']:
+            basedir = pathlib.Path(__file__).parent.parent.resolve()
+            save_path = basedir / "outputs" / f"checkpoint_{config['model_name']}.pth"
+            torch.save(best_model.state_dict(), save_path)
+            print(f"Saved model with MAE = {best_mae:.4f}")
+
+    print(f"Training completely finished! Best Val Loss: {best_loss:.4f}, Best Val MAE: {best_mae:.4f}")
 
 if __name__ == "__main__":
     main()
