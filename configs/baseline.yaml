@@ -1,6 +1,7 @@
 experiment_name: "baseline_scratch"
-model_name: "base"
+model_name: "baseline"
 seed: 42
+pretrained: True
 
 # Data parameters
 batch_size: 32

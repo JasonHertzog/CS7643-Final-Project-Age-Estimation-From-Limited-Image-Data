@@ -30,7 +30,7 @@ def main():
     dataloaders = get_dataloaders(data_dir, config['batch_size'], config['image_size'])
     
     # Initialize Model & Optimizer
-    model = get_model()
+    model = get_model(config['pretrained'])
     criterion = torch.nn.MSELoss()
     optimizer = torch.optim.Adam(model.parameters(), lr=config['learning_rate'])
     
