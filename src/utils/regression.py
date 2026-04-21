@@ -37,6 +37,10 @@ def train(model, dataloader, optimizer, criterion, scheduler=None, device='cpu')
     model.train()
     total_loss = 0.0
     total_mae = 0.0
+    total_mse = 0.0
+    total_acc_at_3 = 0.0
+    total_acc_at_5 = 0.0
+    total_samples = 0
 
     progress_bar = tqdm(dataloader, ascii=True)
 
@@ -53,8 +57,15 @@ def train(model, dataloader, optimizer, criterion, scheduler=None, device='cpu')
         if scheduler is not None:
             scheduler.step()
 
-        with torch.no_grad():
-            total_mae += torch.abs(outputs - targets).mean().item()
+        batch_size = targets.size(0)
+        batch_metrics = compute_regression_metrics(outputs, targets)
+
+        total_loss += loss.item() * batch_size
+        total_mae += batch_metrics["mae"] * batch_size
+        total_mse += batch_metrics["mse"] * batch_size
+        total_acc_at_3 += batch_metrics["acc_at_3"] * batch_size
+        total_acc_at_5 += batch_metrics["acc_at_5"] * batch_size
+        total_samples += batch_size
 
         total_loss += loss.item()
         progress_bar.set_description_str(
