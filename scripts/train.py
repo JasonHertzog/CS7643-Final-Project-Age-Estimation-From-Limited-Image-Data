@@ -47,20 +47,32 @@ def main():
 
     print("Setup complete! Ready to begin training epochs.")
     for epoch in range(config['epochs']):
-        _, train_loss, train_mae = train(model, dataloaders['train'], optimizer, criterion, device=device)
-        _, val_loss, val_mae = evaluate(model, dataloaders['val'], criterion, device=device)
-        print(f"Epoch [{epoch+1}/{config['epochs']}] "
-              f"Train Loss: {train_loss:.4f}, Train MAE: {train_mae:.4f} | "
-              f"Val Loss: {val_loss:.4f}, Val MAE: {val_mae:.4f}")
+        train_stats = train(model, dataloaders['train'], optimizer, criterion, device=device)
+        val_stats = evaluate(model, dataloaders['val'], criterion, device=device)
 
-        train_losses.append(train_loss)
-        train_metrics.append(train_mae)
-        val_losses.append(val_loss)
-        val_metrics.append(val_mae)
+        print(
+            f"Epoch [{epoch+1}/{config['epochs']}] "
+            f"Train Loss: {train_stats['loss']:.4f}, "
+            f"Train MAE: {train_stats['mae']:.4f}, "
+            f"Train MSE: {train_stats['mse']:.4f}, "
+            f"Train Acc@3: {train_stats['acc_at_3']:.4f}, "
+            f"Train Acc@5: {train_stats['acc_at_5']:.4f} | "
+            f"Val Loss: {val_stats['loss']:.4f}, "
+            f"Val MAE: {val_stats['mae']:.4f}, "
+            f"Val MSE: {val_stats['mse']:.4f}, "
+            f"Val Acc@3: {val_stats['acc_at_3']:.4f}, "
+            f"Val Acc@5: {val_stats['acc_at_5']:.4f}"
+        )
+              
 
-        if val_mae < best_mae:
-            best_mae = val_mae
-            best_loss = val_loss
+        train_losses.append(train_stats['loss'])
+        train_metrics.append(train_stats['mae'])
+        val_losses.append(val_stats['loss'])
+        val_metrics.append(val_stats['mae'])
+
+        if val_stats['mae'] < best_mae:
+            best_mae = val_stats['mae']
+            best_loss = val_stats['loss']
             best_model = copy.deepcopy(model)
 
         if config['save_best']:
