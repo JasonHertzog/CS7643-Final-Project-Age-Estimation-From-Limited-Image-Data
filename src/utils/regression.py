@@ -32,7 +32,7 @@ def train(model, dataloader, optimizer, criterion, scheduler=None, device='cpu')
         device     : 'cpu', 'cuda', or 'mps'.
 
     Returns:
-        total_loss (float), avg_loss (float), mae (float)
+        dict containing average metrics as keys: loss, mae, mse, acc_at_3, acc_at_5
     """
     model.train()
     total_loss = 0.0
@@ -67,12 +67,20 @@ def train(model, dataloader, optimizer, criterion, scheduler=None, device='cpu')
         total_acc_at_5 += batch_metrics["acc_at_5"] * batch_size
         total_samples += batch_size
 
-        total_loss += loss.item()
         progress_bar.set_description_str(
-            "Batch: %d, Loss: %.4f" % ((batch_idx + 1), loss.item()))
+            "Batch: %d, Loss: %.4f, MAE: %.4f" % ((batch_idx + 1), loss.item(), batch_metrics["mae"]))
 
-    n = len(dataloader)
-    return total_loss, total_loss / n, total_mae / n
+    #n = len(dataloader)
+    #return total_loss, total_loss / n, total_mae / n
+    if total_samples == 0:
+        raise ValueError("No samples were processed during training!")
+    return {
+        "loss": total_loss / total_samples,
+        "mae": total_mae / total_samples,
+        "mse": total_mse / total_samples,
+        "acc_at_3": total_acc_at_3 / total_samples,
+        "acc_at_5": total_acc_at_5 / total_samples,
+    }
 
 
 def evaluate(model, dataloader, criterion, device='cpu'):
