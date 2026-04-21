@@ -7,6 +7,7 @@ from src.utils.reproducibility import set_seed
 from src.dataset import get_dataloaders
 from src.models.base_model import get_model
 from src.utils.regression import train, evaluate
+from src.utils.plots import plot_curves
 
 def load_config(config_path):
     """Loads configuration from a YAML file."""
@@ -41,6 +42,9 @@ def main():
     best_model = None
     best_loss = None
 
+    train_losses, train_metrics = [], []
+    val_losses, val_metrics = [], []
+
     print("Setup complete! Ready to begin training epochs.")
     for epoch in range(config['epochs']):
         _, train_loss, train_mae = train(model, dataloaders['train'], optimizer, criterion, device=device)
@@ -49,12 +53,16 @@ def main():
               f"Train Loss: {train_loss:.4f}, Train MAE: {train_mae:.4f} | "
               f"Val Loss: {val_loss:.4f}, Val MAE: {val_mae:.4f}")
 
-        
+        train_losses.append(train_loss)
+        train_metrics.append(train_mae)
+        val_losses.append(val_loss)
+        val_metrics.append(val_mae)
+
         if val_mae < best_mae:
             best_mae = val_mae
             best_loss = val_loss
             best_model = copy.deepcopy(model)
-            
+
         if config['save_best']:
             basedir = pathlib.Path(__file__).parent.parent.resolve()
             save_path = basedir / "outputs" / f"checkpoint_{config['model_name']}.pth"
@@ -62,6 +70,7 @@ def main():
             print(f"Saved model with MAE = {best_mae:.4f}")
 
     print(f"Training completely finished! Best Val Loss: {best_loss:.4f}, Best Val MAE: {best_mae:.4f}")
+    plot_curves(train_losses, train_metrics, val_losses, val_metrics, metric='MAE')
 
 if __name__ == "__main__":
     main()
