@@ -93,11 +93,16 @@ def evaluate(model, dataloader, criterion, device='cpu'):
         device     : 'cpu', 'cuda', or 'mps'.
 
     Returns:
-        total_loss (float), avg_loss (float), mae (float)
+        dict containing average metrics as keys: loss, mae, mse, acc_at_3, acc_at_5
     """
     model.eval()
     total_loss = 0.0
     total_mae = 0.0
+    total_mse = 0.0
+    total_acc_at_3 = 0.0
+    total_acc_at_5 = 0.0
+    total_samples = 0
+
 
     with torch.no_grad():
         progress_bar = tqdm(dataloader, ascii=True)
@@ -109,10 +114,25 @@ def evaluate(model, dataloader, criterion, device='cpu'):
             outputs = model(images).squeeze(1)      # (B,)
             loss = criterion(outputs, targets)
 
-            total_mae += torch.abs(outputs - targets).mean().item()
-            total_loss += loss.item()
-            progress_bar.set_description_str(
-                "Batch: %d, Loss: %.4f" % ((batch_idx + 1), loss.item()))
+            batch_size = targets.size(0)
+            batch_metrics = compute_regression_metrics(outputs, targets)
 
-    n = len(dataloader)
-    return total_loss, total_loss / n, total_mae / n
+            total_loss += loss.item() * batch_size
+            total_mae += batch_metrics["mae"] * batch_size
+            total_mse += batch_metrics["mse"] * batch_size
+            total_acc_at_3 += batch_metrics["acc_at_3"] * batch_size
+            total_acc_at_5 += batch_metrics["acc_at_5"] * batch_size
+            total_samples += batch_size
+
+            progress_bar.set_description_str(
+                "Batch: %d, Loss: %.4f, MAE: %.4f" % ((batch_idx + 1), loss.item(), batch_metrics["mae"]))
+
+    if total_samples == 0:
+        raise ValueError("No samples were processed during evaluation!")
+    return {
+        "loss": total_loss / total_samples,
+        "mae": total_mae / total_samples,
+        "mse": total_mse / total_samples,
+        "acc_at_3": total_acc_at_3 / total_samples,
+        "acc_at_5": total_acc_at_5 / total_samples,
+    }
