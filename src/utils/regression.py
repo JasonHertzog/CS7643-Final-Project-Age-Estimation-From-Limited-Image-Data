@@ -10,8 +10,8 @@ def compute_regression_metrics(outputs, targets):
     return {
         "mae": absolute_errors.mean().item(),
         "mse": squared_errors.mean().item(),
-        "accuracy_within_3_years": (absolute_errors <= 3).float().mean().item(),
-        "accuracy_within_5_years": (absolute_errors <= 5).float().mean().item(),
+        "acc_at_3": (absolute_errors <= 3).float().mean().item(),
+        "acc_at_5": (absolute_errors <= 5).float().mean().item(),
     }
 
 def train(model, dataloader, optimizer, criterion, scheduler=None, device='cpu'):
