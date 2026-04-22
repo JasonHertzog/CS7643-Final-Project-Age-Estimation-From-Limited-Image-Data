@@ -13,11 +13,16 @@ def compute_regression_metrics(outputs, targets):
         "acc_at_5": (absolute_errors <= 5).float().mean().item(),
     }
 
+def compute_classification_metrics(outputs, targets):
+    preds = torch.argmax(outputs, dim=1)
+    correct = (preds == targets).float().sum().item()
+    return {"acc": correct / targets.size(0)}
+
 def train(model, dataloader, optimizer, criterion, task_type='regression', target_col='age', scheduler=None, device='cpu'):
     """Train for one epoch on UTKFace."""
     model.train()
     
-    total_loss, total_mae, total_mse, total_acc_at_3, total_acc_at_5, total_samples = 0.0, 0.0, 0.0, 0.0, 0.0, 0
+    total_loss, total_mae, total_mse, total_acc_at_3, total_acc_at_5, total_acc, total_samples = 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0
     progress_bar = tqdm(dataloader, ascii=True)
     
     for batch_idx, (images, labels) in enumerate(progress_bar):
@@ -51,6 +56,9 @@ def train(model, dataloader, optimizer, criterion, task_type='regression', targe
             total_mse += batch_metrics["mse"] * batch_size
             total_acc_at_3 += batch_metrics["acc_at_3"] * batch_size
             total_acc_at_5 += batch_metrics["acc_at_5"] * batch_size
+        else:
+            batch_metrics = compute_classification_metrics(outputs, targets)
+            total_acc += batch_metrics["acc"] * batch_size
             
         total_loss += loss.item() * batch_size
         total_samples += batch_size
@@ -63,23 +71,21 @@ def train(model, dataloader, optimizer, criterion, task_type='regression', targe
         "mse": total_mse / total_samples,
         "acc_at_3": total_acc_at_3 / total_samples,
         "acc_at_5": total_acc_at_5 / total_samples,
+        "acc": total_acc / total_samples,
     }
 
 def evaluate(model, dataloader, criterion, task_type='regression', target_col='age', device='cpu'):
     """Evaluate on UTKFace (no gradient updates)."""
     model.eval()
     
-    total_loss, total_mae, total_mse, total_acc_at_3, total_acc_at_5, total_samples = 0.0, 0.0, 0.0, 0.0, 0.0, 0
+    total_loss, total_mae, total_mse, total_acc_at_3, total_acc_at_5, total_acc, total_samples = 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0
+    progress_bar = tqdm(dataloader, ascii=True)
     
     with torch.no_grad():
-        progress_bar = tqdm(dataloader, ascii=True)
         for images, labels in progress_bar:
             images = images.to(device)
-            
-            # grab correct target column
             targets = labels[target_col].to(device)
             
-            # handle classification vs regression
             if task_type == 'classification':
                 targets = targets.long()
                 outputs = model(images)
@@ -88,7 +94,6 @@ def evaluate(model, dataloader, criterion, task_type='regression', target_col='a
                 outputs = model(images).squeeze()
                 
             loss = criterion(outputs, targets)
-            
             batch_size = targets.size(0)
             
             if task_type == 'regression':
@@ -97,9 +102,14 @@ def evaluate(model, dataloader, criterion, task_type='regression', target_col='a
                 total_mse += batch_metrics["mse"] * batch_size
                 total_acc_at_3 += batch_metrics["acc_at_3"] * batch_size
                 total_acc_at_5 += batch_metrics["acc_at_5"] * batch_size
+            else:
+                batch_metrics = compute_classification_metrics(outputs, targets)
+                total_acc += batch_metrics["acc"] * batch_size
                 
             total_loss += loss.item() * batch_size
             total_samples += batch_size
+            
+            progress_bar.set_postfix({'loss': total_loss / total_samples})
             
     return {
         "loss": total_loss / total_samples,
@@ -107,4 +117,5 @@ def evaluate(model, dataloader, criterion, task_type='regression', target_col='a
         "mse": total_mse / total_samples,
         "acc_at_3": total_acc_at_3 / total_samples,
         "acc_at_5": total_acc_at_5 / total_samples,
+        "acc": total_acc / total_samples,
     }
