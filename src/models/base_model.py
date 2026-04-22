@@ -1,22 +1,24 @@
-import torch
 import torch.nn as nn
 from torchvision import models
 
-class BaseAgeEstimationModel(nn.Module):
-    def __init__(self, pretrained):
-        super(BaseAgeEstimationModel, self).__init__()
-        # Using ResNet-18 as the baseline architecture
-        if pretrained:
-            self.backbone = models.resnet18(weights='IMAGENET1K_V1')
-        else:
-            self.backbone = models.resnet18()
+class ResNet18Backbone(nn.Module):
+    def __init__(self, pretrained=True):
+        super().__init__()
         
-        # Replace the final fully connected layer for regression (1 output for Age)
-        num_ftrs = self.backbone.fc.in_features
-        self.backbone.fc = nn.Linear(num_ftrs, 1)
+        # ResNet18 backbone
+        if pretrained:
+            self.model = models.resnet18(weights='IMAGENET1K_V1')
+        else:
+            self.model = models.resnet18()
+        
+        # holding feature size (for head)
+        self.num_ftrs = self.model.fc.in_ftrs
+        
+        # needs this replacement so features match expectations
+        self.model.fc = nn.Identity()
 
     def forward(self, x):
-        return self.backbone(x)
-
-def get_model(pretrained=True):
-    return BaseAgeEstimationModel(pretrained)
+        return self.model(x)
+    
+def get_resnet18_backbone(pretrained=True):
+    return ResNet18Backbone(pretrained)

@@ -5,7 +5,7 @@ import yaml
 import torch
 from src.utils.reproducibility import set_seed
 from src.dataset import get_dataloaders
-from src.models.base_model import get_model
+# from src.models.base_model import get_model
 from src.utils.regression import train, evaluate
 from src.utils.plots import plot_curves
 
@@ -13,6 +13,18 @@ def load_config(config_path):
     """Loads configuration from a YAML file."""
     with open(config_path, 'r') as file:
         return yaml.safe_load(file)
+
+def load_model(model_name, pretrained=True, **kwargs):
+    if model_name == "linear":
+        from src.models.linear import get_model
+    elif model_name == "mlp":
+        from src.models.mlp import get_model
+    elif model_name == "mlp_dropout":
+        from src.models.mlp_dropout import get_model
+    else:
+        raise ValueError(f"Unknown model: {model_name}")
+
+    return get_model(pretrained, **kwargs)
 
 def main():
     parser = argparse.ArgumentParser(description="Age Estimation Training Baseline")
@@ -31,7 +43,7 @@ def main():
     dataloaders = get_dataloaders(data_dir, config['batch_size'], config['image_size'])
     
     # Initialize Model & Optimizer
-    model = get_model(config['pretrained'])
+    model = load_model(config['model_name'], config['pretrained'], dropout=config.get('dropout', 0.2))
     criterion = torch.nn.MSELoss()
     optimizer = torch.optim.Adam(model.parameters(), lr=config['learning_rate'])
     

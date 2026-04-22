@@ -1,5 +1,5 @@
-experiment_name: "baseline_scratch"
-model_name: "baseline"
+experiment_name: "linear_model_training"
+model_name: "linear"  # linear, mlp, or mlp_dropout
 seed: 42
 pretrained: True
 
@@ -14,3 +14,6 @@ learning_rate: 0.001
 optimizer: "Adam"
 loss_function: "MSELoss"
 save_best: True
+
+# MLP + Dropout
+dropout: 0.2
