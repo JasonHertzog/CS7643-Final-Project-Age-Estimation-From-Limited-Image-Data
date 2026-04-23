@@ -120,16 +120,16 @@ def main():
             best_loss = val_stats['loss']
             best_model = copy.deepcopy(model)
 
-        if config['save_best']:
-            basedir = pathlib.Path(__file__).parent.parent.resolve()
-            save_path = basedir / "outputs" / f"checkpoint_{config['experiment_name']}.pth"
-            torch.save(best_model.state_dict(), save_path)
-            print(f"Saved model with {metric.upper()} = {best_metric:.4f}")
+    if config['save_best']:
+        basedir = pathlib.Path(__file__).parent.parent.resolve()
+        save_path = basedir / "outputs" / f"checkpoint_{config['experiment_name']}.pth"
+        torch.save(best_model.state_dict(), save_path)
+        print(f"Saved model with {metric.upper()} = {best_metric:.4f}")
 
-        # save stats history to a numpy file for later analysis
-        stats_save_path = basedir / "outputs" / f"stats_history_{config['experiment_name']}.npy"
-        numpy.save(stats_save_path, stat_history)
-        print(f"Saved training stats history to {stats_save_path}")
+    # save stats history to a numpy file for later analysis
+    stats_save_path = basedir / "outputs" / f"stats_history_{config['experiment_name']}.npy"
+    numpy.save(stats_save_path, stat_history)
+    print(f"Saved training stats history to {stats_save_path}")
 
     print(f"Training completely finished! Best Val Loss: {best_loss:.4f}, Best Val {metric.upper()}: {best_metric:.4f}")
     plot_curves(train_losses, train_metrics, val_losses, val_metrics, metric=metric, save_path=f"outputs/experiment_curves_{config['experiment_name']}.png")
