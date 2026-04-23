@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
 
-def plot_curves(train_loss_history, train_metric_history, valid_loss_history, valid_metric_history, metric='Accuracy') -> None:
+def plot_curves(train_loss_history, train_metric_history, valid_loss_history, valid_metric_history, metric='MAE', save_path=None) -> None:
     """
     Plot learning curves with matplotlib. Make sure training loss and validation loss are plot in the same figure and
     training accuracy and validation accuracy are plot in the same figure too.
@@ -8,7 +8,8 @@ def plot_curves(train_loss_history, train_metric_history, valid_loss_history, va
     :param train_metric_history: training metric history of epochs where metric could be any metric
     :param valid_loss_history: validation loss history of epochs
     :param valid_metric_history: validation metric history of epochs where metric could be any metric
-    :param metric: metric to be used 
+    :param metric: metric to be used
+    :param save_path: path to save the plot
     :return: None, save two figures in the current directory
     """
     
@@ -34,4 +35,7 @@ def plot_curves(train_loss_history, train_metric_history, valid_loss_history, va
     plt.grid(visible=True)
     plt.legend(frameon=True)
     
+    if save_path:
+        plt.savefig(save_path)
+        
     plt.show()
