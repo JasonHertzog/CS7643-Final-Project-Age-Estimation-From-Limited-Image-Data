@@ -1,3 +1,5 @@
+# This file is deprecated in favor of dataset.py, which implements a more robust and flexible PyTorch Dataset class for UTKFace. 
+
 import os
 import torch
 from torch.utils.data import Dataset, DataLoader

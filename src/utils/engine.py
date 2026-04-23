@@ -16,7 +16,7 @@ def compute_regression_metrics(outputs, targets):
 def compute_classification_metrics(outputs, targets):
     preds = torch.argmax(outputs, dim=1)
     correct = (preds == targets).float().sum().item()
-    return {"acc": correct / targets.size(0)}
+    return {"accuracy": correct / targets.size(0)}
 
 def train(model, dataloader, optimizer, criterion, task_type='regression', target_col='age', scheduler=None, device='cpu'):
     """Train for one epoch on UTKFace."""
@@ -58,11 +58,11 @@ def train(model, dataloader, optimizer, criterion, task_type='regression', targe
             total_acc_at_5 += batch_metrics["acc_at_5"] * batch_size
         else:
             batch_metrics = compute_classification_metrics(outputs, targets)
-            total_acc += batch_metrics["acc"] * batch_size
-            
+            total_acc += batch_metrics["accuracy"] * batch_size
+
         total_loss += loss.item() * batch_size
         total_samples += batch_size
-        
+
         progress_bar.set_postfix({'loss': total_loss / total_samples})
         
     return {
@@ -71,7 +71,7 @@ def train(model, dataloader, optimizer, criterion, task_type='regression', targe
         "mse": total_mse / total_samples,
         "acc_at_3": total_acc_at_3 / total_samples,
         "acc_at_5": total_acc_at_5 / total_samples,
-        "acc": total_acc / total_samples,
+        "accuracy": total_acc / total_samples,
     }
 
 def evaluate(model, dataloader, criterion, task_type='regression', target_col='age', device='cpu'):
@@ -104,11 +104,11 @@ def evaluate(model, dataloader, criterion, task_type='regression', target_col='a
                 total_acc_at_5 += batch_metrics["acc_at_5"] * batch_size
             else:
                 batch_metrics = compute_classification_metrics(outputs, targets)
-                total_acc += batch_metrics["acc"] * batch_size
-                
+                total_acc += batch_metrics["accuracy"] * batch_size
+
             total_loss += loss.item() * batch_size
             total_samples += batch_size
-            
+
             progress_bar.set_postfix({'loss': total_loss / total_samples})
             
     return {
@@ -117,5 +117,5 @@ def evaluate(model, dataloader, criterion, task_type='regression', target_col='a
         "mse": total_mse / total_samples,
         "acc_at_3": total_acc_at_3 / total_samples,
         "acc_at_5": total_acc_at_5 / total_samples,
-        "acc": total_acc / total_samples,
+        "accuracy": total_acc / total_samples,
     }
