@@ -66,4 +66,11 @@ A full training loop can be run by issuing the command
 
 python -m scripts.train --config configs/baseline.yaml
 
+## Evaluation Step
+
+Evaluation of a model can be triggered by issuing the command
+
+python -m scripts.evaluate --config configs/baseline.yaml
+
+
 
