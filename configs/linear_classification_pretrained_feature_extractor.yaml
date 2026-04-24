@@ -1,3 +1,5 @@
+# Config file for ResNet18 pretrained on ImageNet, used as a frozen feature extractor for linear classification. 
+
 experiment_name: "linear_classification_pretrained_feature_extractor"
 model_name: "linear"  # linear, mlp, or mlp_dropout
 seed: 42

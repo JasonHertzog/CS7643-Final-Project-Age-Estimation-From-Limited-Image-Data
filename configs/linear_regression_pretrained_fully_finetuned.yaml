@@ -1,3 +1,5 @@
+# Config file for ResNet18 pretrained on ImageNet, used as a fully finetuned model for linear regression. 
+
 experiment_name: "linear_regression_pretrained_fully_finetuned"
 model_name: "linear"  # linear, mlp, or mlp_dropout
 seed: 42

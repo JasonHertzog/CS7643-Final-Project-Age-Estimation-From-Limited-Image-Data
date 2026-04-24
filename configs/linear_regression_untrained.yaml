@@ -1,10 +1,10 @@
-# Config file for ResNet18 pretrained on ImageNet, used as a frozen feature extractor for linear regression. 
+# Config file for ResNet18 untrained, to be used as backbone for linear regression.
 
-experiment_name: "linear_regression_pretrained_feature_extractor"
+experiment_name: "linear_regression_untrained"
 model_name: "linear"  # linear, mlp, or mlp_dropout
 seed: 42
-pretrained: True
-freeze_backbone: True     # Whether to fine-tune the pretrained model or just use it as a feature extractor
+pretrained: False
+freeze_backbone: False    # Whether to fine-tune the pretrained model or just use it as a feature extractor
 task: "regression"  # regression or classification
 metric: "mae"       # mse for regression, accuracy for classification
 
