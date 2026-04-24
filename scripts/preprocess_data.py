@@ -5,6 +5,7 @@ import csv
 import random
 from pathlib import Path
 from PIL import Image
+import numpy
 
 # using the "set_seed" function from our reproducibility utility
 from src.utils.reproducibility import set_seed
@@ -124,6 +125,19 @@ def main():
     # Optional debug
     if skipped:
         print("Sample skipped:", skipped[:5])
+
+    # age statistics by dataset split
+    def age_stats(records, name):
+        ages = numpy.array([r["age"] for r in records])
+        mean = numpy.mean(ages)
+        median = numpy.median(ages)
+        std = numpy.std(ages)
+        print(f"\n[{name}] age statistics (n={len(ages)})")
+        print(f"  min={ages.min()}  max={ages.max()}  mean={mean:.2f}  median={median}  std={std:.2f}")
+
+    age_stats(train_records, "train")
+    age_stats(valid_records, "val")
+    age_stats(test_records, "test")
 
 
 if __name__ == "__main__":
