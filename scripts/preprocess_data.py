@@ -17,8 +17,6 @@ TRAIN_SPLIT = 0.8
 VALID_SPLIT = 0.1
 TEST_SPLIT = 0.1
 
-set_seed(42)
-
 # parse filename
 def parse_filename(filename):
     try:
@@ -41,6 +39,8 @@ def is_valid_image(path):
 
 # main function to preprocess data
 def main():
+    set_seed(42)
+
     print("RAW_DATA_DIR exists:", RAW_DATA_DIR.exists())
     print("RAW_DATA_DIR path:", RAW_DATA_DIR)
 
