@@ -19,7 +19,7 @@ learning_rate: 0.001
 optimizer: "Adam"
 #loss_function: "MSELoss" unused since we set it in train.py based on task
 save_best: True
-weight_decay: 0.0001
+weight_decay: 0.01
 
 # MLP + Dropout
 dropout: 0.2
