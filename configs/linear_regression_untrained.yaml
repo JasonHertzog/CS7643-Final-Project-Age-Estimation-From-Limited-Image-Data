@@ -14,12 +14,12 @@ num_workers: 4
 image_size: 224
 
 # Training parameters
-epochs: 20
+epochs: 30
 learning_rate: 0.001
 optimizer: "Adam"
 #loss_function: "MSELoss" unused since we set it in train.py based on task
 save_best: True
-weight_decay: 0.001
+weight_decay: 0.0001
 
 # MLP + Dropout
 dropout: 0.2
