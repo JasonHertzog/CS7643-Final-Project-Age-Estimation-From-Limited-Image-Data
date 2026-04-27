@@ -71,9 +71,15 @@ def main():
         out_features=out_features,
     )
     
-    
-    optimizer = torch.optim.Adam(model.parameters(), lr=config['learning_rate'])
-    
+    weight_decay=config.get('weight_decay', 0.0)
+    if weight_decay > 0:
+        # use adamw
+        print(f"Using AdamW optimizer with weight decay: {weight_decay}")
+        optimizer = torch.optim.AdamW(model.parameters(), lr=config['learning_rate'], weight_decay=weight_decay)
+    else:
+        print(f"Using Adam optimizer without weight decay")
+        optimizer = torch.optim.Adam(model.parameters(), lr=config['learning_rate'])
+
     device = 'cuda' if torch.cuda.is_available() else 'mps' if torch.backends.mps.is_available() else 'cpu'
     model = model.to(device)
 
@@ -88,6 +94,10 @@ def main():
         'eval': []
     }
     print("Setup complete! Ready to begin training epochs.")
+    
+    basedir = pathlib.Path(__file__).parent.parent.resolve() / "outputs"
+    save_path = basedir / f"checkpoint_{config['experiment_name']}.pth"
+        
     for epoch in range(config['epochs']):
         train_stats = train(model, dataloaders['train'], optimizer, criterion, device=device, task_type=config['task'], target_col=target_col)
         val_stats = evaluate(model, dataloaders['val'], criterion, device=device,task_type=config['task'], target_col=target_col)
@@ -120,14 +130,18 @@ def main():
             best_loss = val_stats['loss']
             best_model = copy.deepcopy(model)
 
+        if config['save_best'] and (epoch+1) % 10 == 0:
+            save_path = basedir / f"checkpoint_{config['experiment_name']}_{epoch+1}.pth"
+            torch.save(best_model.state_dict(), save_path)
+            print(f"Saving Best Val {metric.upper()}: {best_metric:.4f} at Epoch {epoch+1}")
+
     if config['save_best']:
-        basedir = pathlib.Path(__file__).parent.parent.resolve()
-        save_path = basedir / "outputs" / f"checkpoint_{config['experiment_name']}.pth"
+        save_path = basedir / f"checkpoint_{config['experiment_name']}.pth"
         torch.save(best_model.state_dict(), save_path)
         print(f"Saved model with {metric.upper()} = {best_metric:.4f}")
 
     # save stats history to a numpy file for later analysis
-    stats_save_path = basedir / "outputs" / f"stats_history_{config['experiment_name']}.npy"
+    stats_save_path = basedir / f"stats_history_{config['experiment_name']}.npy"
     numpy.save(stats_save_path, stat_history)
     print(f"Saved training stats history to {stats_save_path}")
 
