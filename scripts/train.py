@@ -52,21 +52,20 @@ def main():
     # Initialize Model & Optimizer
     if config['task'] == "classification":
         criterion = torch.nn.CrossEntropyLoss()
-        target_col = 'age_bin'  # Use age bins for classification
-        metric = config.get('metric', 'accuracy')   # get metric from config, default to accuracy for classification
-        out_features = len(UTKFaceDataset.AGE_BIN_LABELS)
+        target_col = 'age_bin'  # Use age itself as a one year bins for classification
+        metric = config.get('metric', 'mae')   # get metric from config, default to accuracy for classification
+        out_features = 116 # number of age bins (0-115)
     else:   
         criterion = torch.nn.MSELoss()
         target_col = 'age'  # Use actual age for regression
         metric = config.get('metric', 'mae')        # get metric from config, default to mae for regression
         out_features = 1
 
-    num_classes = len(UTKFaceDataset.AGE_BIN_LABELS)
+    #num_classes = len(UTKFaceDataset.AGE_BIN_LABELS)
     model = load_model(
         config['model_name'],
         pretrained=config.get('pretrained', True),
         freeze_backbone=config.get('freeze_backbone', False),
-        num_classes=num_classes,
         dropout=config.get('dropout', 0.2),
         out_features=out_features,
     )

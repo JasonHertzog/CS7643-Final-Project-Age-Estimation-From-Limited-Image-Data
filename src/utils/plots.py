@@ -15,6 +15,8 @@ def plot_curves(train_loss_history, train_metric_history, valid_loss_history, va
     :param save_path: path to save the plot
     :return: None, save two figures in the current directory
     """
+
+    metric = metric.upper()
     
     # plot the iterative learning curve (accuracy)
     plt.figure(figsize=(10, 6))

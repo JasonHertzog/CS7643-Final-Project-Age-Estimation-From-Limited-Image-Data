@@ -14,9 +14,19 @@ def compute_regression_metrics(outputs, targets):
     }
 
 def compute_classification_metrics(outputs, targets):
-    preds = torch.argmax(outputs, dim=1)
-    correct = (preds == targets).float().sum().item()
-    return {"accuracy": correct / targets.size(0)}
+    # for classification, outputs are raw logits - use softmax expectations to get predicted class
+    probabilities = torch.softmax(outputs, dim=1)
+    # use probabilities to compute expected age for each sample
+    expected_ages = (probabilities * torch.arange(probabilities.size(1), device=probabilities.device)).sum(dim=1)
+    # usre predicted bins and expected_ages to computed the same metrics as regression for better comparison
+    absolute_errors = torch.abs(expected_ages - targets.float())
+    squared_errors = (expected_ages - targets.float()) ** 2 
+    return {
+        "mae": absolute_errors.mean().item(),
+        "mse": squared_errors.mean().item(),
+        "acc_at_3": (absolute_errors <= 3).float().mean().item(),
+        "acc_at_5": (absolute_errors <= 5).float().mean().item()
+    }
 
 def train(model, dataloader, optimizer, criterion, task_type='regression', target_col='age', scheduler=None, device='cpu'):
     """Train for one epoch on UTKFace."""
@@ -52,14 +62,14 @@ def train(model, dataloader, optimizer, criterion, task_type='regression', targe
         
         if task_type == 'regression':
             batch_metrics = compute_regression_metrics(outputs, targets)
-            total_mae += batch_metrics["mae"] * batch_size
-            total_mse += batch_metrics["mse"] * batch_size
-            total_acc_at_3 += batch_metrics["acc_at_3"] * batch_size
-            total_acc_at_5 += batch_metrics["acc_at_5"] * batch_size
         else:
             batch_metrics = compute_classification_metrics(outputs, targets)
-            total_acc += batch_metrics["accuracy"] * batch_size
-
+        
+        total_mae += batch_metrics["mae"] * batch_size
+        total_mse += batch_metrics["mse"] * batch_size
+        total_acc_at_3 += batch_metrics["acc_at_3"] * batch_size
+        total_acc_at_5 += batch_metrics["acc_at_5"] * batch_size
+        
         total_loss += loss.item() * batch_size
         total_samples += batch_size
 
@@ -71,7 +81,6 @@ def train(model, dataloader, optimizer, criterion, task_type='regression', targe
         "mse": total_mse / total_samples,
         "acc_at_3": total_acc_at_3 / total_samples,
         "acc_at_5": total_acc_at_5 / total_samples,
-        "accuracy": total_acc / total_samples,
     }
 
 def evaluate(model, dataloader, criterion, task_type='regression', target_col='age', device='cpu'):
@@ -98,14 +107,14 @@ def evaluate(model, dataloader, criterion, task_type='regression', target_col='a
             
             if task_type == 'regression':
                 batch_metrics = compute_regression_metrics(outputs, targets)
-                total_mae += batch_metrics["mae"] * batch_size
-                total_mse += batch_metrics["mse"] * batch_size
-                total_acc_at_3 += batch_metrics["acc_at_3"] * batch_size
-                total_acc_at_5 += batch_metrics["acc_at_5"] * batch_size
             else:
                 batch_metrics = compute_classification_metrics(outputs, targets)
-                total_acc += batch_metrics["accuracy"] * batch_size
-
+            
+            total_mae += batch_metrics["mae"] * batch_size
+            total_mse += batch_metrics["mse"] * batch_size
+            total_acc_at_3 += batch_metrics["acc_at_3"] * batch_size
+            total_acc_at_5 += batch_metrics["acc_at_5"] * batch_size
+        
             total_loss += loss.item() * batch_size
             total_samples += batch_size
 
@@ -116,6 +125,5 @@ def evaluate(model, dataloader, criterion, task_type='regression', target_col='a
         "mae": total_mae / total_samples,
         "mse": total_mse / total_samples,
         "acc_at_3": total_acc_at_3 / total_samples,
-        "acc_at_5": total_acc_at_5 / total_samples,
-        "accuracy": total_acc / total_samples,
+        "acc_at_5": total_acc_at_5 / total_samples
     }

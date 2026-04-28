@@ -43,8 +43,8 @@ def main():
     if config['task'] == "classification":
         criterion = torch.nn.CrossEntropyLoss()
         target_col = 'age_bin'  # Use age bins for classification
-        metric = config.get('metric', 'accuracy')   # get metric from config, default to accuracy for classification
-        out_features = len(UTKFaceDataset.AGE_BIN_LABELS)
+        metric = config.get('metric', 'mae')   # get metric from config, default to accuracy for classification
+        out_features = 116 # number of age bins (0-115)
     else:   
         criterion = torch.nn.MSELoss()
         target_col = 'age'  # Use actual age for regression
@@ -78,17 +78,17 @@ def main():
 
     print(f"\nEvaluation Metrics — {config['experiment_name']}")
 
-    if config['task'] == 'regression':
-        rows = [
-            ("MAE",    f"{test_stats['mae']:.4f}"),
-            ("MSE",    f"{test_stats['mse']:.4f}"),
-            ("Acc@3",  f"{test_stats['acc_at_3']:.4f}"),
-            ("Acc@5",  f"{test_stats['acc_at_5']:.4f}"),
-        ]
-    else:
-        rows = [
-            ("Accuracy", f"{test_stats['accuracy']:.4f}"),
-        ]
+    #if config['task'] == 'regression':
+    rows = [
+        ("MAE",    f"{test_stats['mae']:.4f}"),
+        ("MSE",    f"{test_stats['mse']:.4f}"),
+        ("Acc@3",  f"{test_stats['acc_at_3']:.4f}"),
+        ("Acc@5",  f"{test_stats['acc_at_5']:.4f}"), 
+    ]
+    #else:
+    #    rows = [
+    #        ("Accuracy", f"{test_stats['accuracy']:.4f}"),
+    #    ]
 
     col_w = max(len("Metric"), max(len(r[0]) for r in rows))  # dynamic column width based on longest metric name
     sep = "+" + "-" * (col_w + 2) + "+" + "-" * 10 + "+"

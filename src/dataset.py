@@ -73,10 +73,11 @@ class UTKFaceDataset(Dataset):
     @classmethod
     def age_to_bin(cls, age: int) -> int:
         """Map a raw age value to its bin index (for classification tasks)."""
-        for i in range(len(cls.AGE_BINS) - 1):
-            if age < cls.AGE_BINS[i + 1]:
-                return i
-        return len(cls.AGE_BINS) - 2  # clamp to last bin
+        #for i in range(len(cls.AGE_BINS) - 1):
+        #    if age < cls.AGE_BINS[i + 1]:
+        #        return i
+        #return len(cls.AGE_BINS) - 2  # clamp to last bin
+        return age - 1    # use the age as its own bin index (0-115) for one-year-bin classification
 
 # ---------------------------------------------------------------------------
 # Transform factories
