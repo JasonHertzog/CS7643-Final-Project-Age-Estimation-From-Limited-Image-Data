@@ -6,7 +6,7 @@ seed: 42
 pretrained: False
 freeze_backbone: False    # Whether to fine-tune the pretrained model or just use it as a feature extractor
 task: "classification"   # regression or classification
-metric: "accuracy"       # mse for regression, accuracy for classification
+metric: "mae"             # this is the same as regression since we are treating age estimation as regression, but we will report it as MAE instead of MSE for better interpretability
 
 # Data parameters
 batch_size: 32
@@ -14,11 +14,12 @@ num_workers: 4
 image_size: 224
 
 # Training parameters
-epochs: 5
+epochs: 30
 learning_rate: 0.001
 optimizer: "Adam"
 #loss_function: "CrossEntropyLoss" unsed since we set it in train.py based on task
 save_best: True
+weight_decay: 0.01
 
 # MLP + Dropout
 dropout: 0.2
