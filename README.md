@@ -72,5 +72,11 @@ Evaluation of a model can be triggered by issuing the command
 
 python -m scripts.evaluate --config configs/baseline.yaml
 
+## Visualization Step
+
+The visualization step will generate 10 cards for the images where the model performed the worst. It will also produce performance on 10 randomly selected pictures.
+
+python -m scripts.visualize --config configs/baseline.yaml
+
 
 
