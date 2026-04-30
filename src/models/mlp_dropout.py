@@ -9,7 +9,7 @@ class ResNet18_MLP_Dropout(nn.Module):
         
         # sequential head --> linear, ReLU activation, dropout, linear
         self.head = nn.Sequential(
-            nn.Linear(self.core.num_features, 512),
+            nn.Linear(self.core.num_ftrs, 512),
             nn.ReLU(),
             nn.Dropout(dropout),
             nn.Linear(512, 1)
