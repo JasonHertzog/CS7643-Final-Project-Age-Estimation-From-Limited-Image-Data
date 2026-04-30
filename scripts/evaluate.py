@@ -72,6 +72,9 @@ def main():
     state_dict = torch.load(load_path, weights_only=True)
     model.load_state_dict(state_dict)
 
+    # print model parameters
+    print(f"\n\033[1mModel Parameters = {sum(p.numel() for p in model.parameters()):,}\033[0m")
+
     device = 'cuda' if torch.cuda.is_available() else 'mps' if torch.backends.mps.is_available() else 'cpu'
     model = model.to(device)
     test_stats = evaluate(model, dataloaders['test'], criterion, device=device,task_type=config['task'], target_col=target_col)
