@@ -5,7 +5,7 @@ class ResNet18_MLP_Dropout(nn.Module):
     def __init__(self, pretrained=True, dropout=0.2):
         super().__init__()
         
-        self.core = get_resnet18_backbone(pretrained)
+        self.core = get_resnet18_backbone()
         
         # sequential head --> linear, ReLU activation, dropout, linear
         self.head = nn.Sequential(
