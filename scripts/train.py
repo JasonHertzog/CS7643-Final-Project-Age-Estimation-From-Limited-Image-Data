@@ -63,14 +63,12 @@ def main():
 
     #num_classes = len(UTKFaceDataset.AGE_BIN_LABELS)
     model = load_model(
-      config['model_name'],
-      pretrained=config.get('pretrained', True),
+        config['model_name'],
+        pretrained=config.get('pretrained', True),
+        freeze_backbone=config.get('freeze_backbone', False),
+        dropout=config.get('dropout', 0.2),
+        out_features=out_features,
     )
-
-    if config.get('freeze_backbone', False):
-      print("Freezing backbone...")
-    for param in model.core.parameters():
-      param.requires_grad = False
     
     weight_decay=config.get('weight_decay', 0.0)
     if weight_decay > 0:
