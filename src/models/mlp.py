@@ -5,7 +5,7 @@ class ResNet18_MLP(nn.Module):
     def __init__(self, pretrained=True):
         super().__init__()
         
-        self.core = get_resnet18_backbone(pretrained)
+        self.core = get_resnet18_backbone()
         
         # sequential head --> linear, ReLU activation, linear
         self.head = nn.Sequential(
