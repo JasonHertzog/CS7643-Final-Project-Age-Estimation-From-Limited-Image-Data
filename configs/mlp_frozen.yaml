@@ -1,0 +1,21 @@
+# Config file for ResNet18 pretrained on ImageNet, used as a frozen feature extractor for an MLP. 
+
+experiment_name: "mlp_frozen"
+model_name: "mlp"  # linear, mlp, or mlp_dropout
+seed: 42
+pretrained: True
+freeze_backbone: True     # Whether to fine-tune the pretrained model or just use it as a feature extractor
+task: "regression"  # regression or classification
+metric: "mae"       # mse for regression, accuracy for classification
+
+# Data parameters
+batch_size: 32
+num_workers: 4
+image_size: 224
+
+# Training parameters
+epochs: 30
+learning_rate: 0.0001
+optimizer: "Adam"
+#loss_function: "MSELoss" unused since we set it in train.py based on task
+save_best: True
