@@ -8,10 +8,11 @@ class ResNet18_MLP(nn.Module):
         # pass all kwargs down (including pretrained, freeze_backbone, etc.)
         self.core = get_resnet18_backbone(**kwargs)
         
+        # head with bottleneck of 256 features
         self.head = nn.Sequential(
-            nn.Linear(self.core.num_ftrs, 512),
+            nn.Linear(self.core.num_ftrs, 256),
             nn.ReLU(),
-            nn.Linear(512, 1)
+            nn.Linear(256, 1)
         )
 
     def forward(self, x):
