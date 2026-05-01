@@ -10,16 +10,15 @@ class ResNet18_MLP_Dropout(nn.Module):
         
         # head uses dropout locally
         self.head = nn.Sequential(
-            nn.Linear(self.core.num_ftrs, 512),
+            nn.Linear(self.core.num_ftrs, 256),
             nn.ReLU(),
             nn.Dropout(dropout),
-            nn.Linear(512, 1)
+            nn.Linear(256, 1)
         )
 
     def forward(self, x):
         ftrs = self.core(x)
         return self.head(ftrs)
-
 
 def get_model(**kwargs):
     return ResNet18_MLP_Dropout(**kwargs)
