@@ -16,7 +16,7 @@ num_workers: 4
 image_size: 224
 
 # Training parameters
-epochs: 10
+epochs: 30
 learning_rate: 0.001
 optimizer: "SGD"
 #loss_function: "CrossEntropyLoss" unsed since we set it in train.py based on task

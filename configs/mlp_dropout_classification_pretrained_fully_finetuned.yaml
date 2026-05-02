@@ -1,0 +1,26 @@
+# Config file for ResNet18 pretrained on ImageNet, used as a fully finetuned model for linear regression. 
+
+experiment_name: "mlp_bn_classification_pretrained_fully_finetuned"
+model_name: "mlp_dropout"  # linear, mlp, or mlp_dropout
+seed: 42
+pretrained: True
+freeze_backbone: False    # Whether to fine-tune the pretrained model or just use it as a feature extractor
+task: "classification"  # regression or classification
+metric: "mae"       # mse for regression, accuracy for classification
+
+# Data parameters
+batch_size: 64
+num_workers: 4
+image_size: 224
+
+# Training parameters
+epochs: 10
+learning_rate: 0.0001
+optimizer: "Adam"
+#loss_function: "MSELoss" unused since we set it in train.py based on task
+save_best: True
+weight_decay: 0.01
+
+
+# MLP + Dropout
+dropout: 0.3
