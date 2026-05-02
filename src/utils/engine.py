@@ -45,8 +45,15 @@ def train(model, dataloader, optimizer, criterion, task_type='regression', targe
         
         # handle classification vs regression
         if task_type == 'classification':
-            targets = targets.long()
-            outputs = model(images)
+            comparison_targets = labels['age_bin'].to(device)  
+            
+            if target_col == 'soft_age':
+                # for soft_age target, we need to use KLDivLoss and log_softmax outputs
+                criterion = nn.KLDivLoss(reduction='batchmean')
+                outputs = torch.log_softmax(model(images), dim=1)
+            else:
+                targets = targets.long()
+                outputs = model(images)
         else:
             targets = targets.float()
             outputs = model(images).squeeze()
@@ -63,7 +70,7 @@ def train(model, dataloader, optimizer, criterion, task_type='regression', targe
         if task_type == 'regression':
             batch_metrics = compute_regression_metrics(outputs, targets)
         else:
-            batch_metrics = compute_classification_metrics(outputs, targets)
+            batch_metrics = compute_classification_metrics(outputs, comparison_targets)
         
         total_mae += batch_metrics["mae"] * batch_size
         total_mse += batch_metrics["mse"] * batch_size
@@ -95,20 +102,28 @@ def evaluate(model, dataloader, criterion, task_type='regression', target_col='a
             images = images.to(device)
             targets = labels[target_col].to(device)
             
+            # handle classification vs regression
             if task_type == 'classification':
-                targets = targets.long()
-                outputs = model(images)
+                comparison_targets = labels['age_bin'].to(device)  
+                
+                if target_col == 'soft_age':
+                    # for soft_age target, we need to use KLDivLoss and log_softmax outputs
+                    criterion = nn.KLDivLoss(reduction='batchmean')
+                    outputs = torch.log_softmax(model(images), dim=1)
+                else:
+                    targets = targets.long()
+                    outputs = model(images)
             else:
                 targets = targets.float()
                 outputs = model(images).squeeze()
-                
+                    
             loss = criterion(outputs, targets)
             batch_size = targets.size(0)
             
             if task_type == 'regression':
                 batch_metrics = compute_regression_metrics(outputs, targets)
             else:
-                batch_metrics = compute_classification_metrics(outputs, targets)
+                batch_metrics = compute_classification_metrics(outputs, comparison_targets)
             
             total_mae += batch_metrics["mae"] * batch_size
             total_mse += batch_metrics["mse"] * batch_size

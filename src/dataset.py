@@ -2,7 +2,7 @@
 UTKFace PyTorch Dataset for use with CS7643 Final Project: Age Estimation from Limited Image Data
 
 Filename format: AGE_GENDER_RACE_TIMESTAMP.jpg
-  AGE    : integer 0–116
+  AGE    : integer 1–116
   GENDER : 0 = Male, 1 = Female
   RACE   : 0 = White, 1 = Black, 2 = Asian, 3 = Indian, 4 = Other
 """
@@ -25,7 +25,7 @@ class UTKFaceDataset(Dataset):
     """
 
     # Age bin boundaries (right-inclusive upper edges)
-    AGE_BINS = [0, 10, 20, 30, 40, 50, 60, 70, 80, 200]
+    AGE_BINS = list(range(116))  # 0-115, one-year bins for classification
     AGE_BIN_LABELS = ["0-9", "10-19", "20-29", "30-39",
                       "40-49", "50-59", "60-69", "70-79", "80+"]
 
@@ -63,6 +63,7 @@ class UTKFaceDataset(Dataset):
             "age_bin": torch.tensor(self.age_to_bin(rec["age"]),     dtype=torch.long),
             "gender":  torch.tensor(rec["gender"],                   dtype=torch.long),
             "race":    torch.tensor(rec["race"],                     dtype=torch.long),
+            "soft_age": self.age_bin_to_soft_probabilities(self.AGE_BINS, self.age_to_bin(rec["age"])).detach().clone()
         }
         return image, labels
 
@@ -78,6 +79,19 @@ class UTKFaceDataset(Dataset):
         #        return i
         #return len(cls.AGE_BINS) - 2  # clamp to last bin
         return age - 1    # use the age as its own bin index (0-115) for one-year-bin classification
+
+    # write a function to take a age index and conver it to soft probabilies around the age
+    @classmethod
+    def age_bin_to_soft_probabilities(cls, age_bins, target_bin, sigma=2.0):
+        """Convert a target age bin index to a soft probability distribution over age bins."""
+        bin_indices = torch.arange(len(age_bins))
+        # compute distances from target bin
+        distances = (bin_indices - target_bin).float()
+        # convert distances to probabilities using a Gaussian kernel
+        probabilities = torch.exp(- (distances ** 2) / (2 * sigma ** 2))
+        # normalize to sum to 1
+        probabilities /= probabilities.sum()
+        return probabilities
 
 # ---------------------------------------------------------------------------
 # Transform factories

@@ -14,6 +14,8 @@ def load_model(model_name, **kwargs):
         from src.models.mlp import get_model
     elif model_name == "mlp_dropout":
         from src.models.mlp_dropout import get_model
+    elif model_name == "mlp_bn":
+        from src.models.mlp_bn import get_model # new model with batch norm
     else:
         raise ValueError(f"Unknown model: {model_name}")
     return get_model(**kwargs)

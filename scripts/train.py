@@ -28,6 +28,8 @@ def load_model(model_name, **kwargs):
         from src.models.mlp import get_model
     elif model_name == "mlp_dropout":
         from src.models.mlp_dropout import get_model
+    elif model_name == "mlp_bn":
+        from src.models.mlp_bn import get_model
     else:
         raise ValueError(f"Unknown model: {model_name}")
 
@@ -52,11 +54,15 @@ def main():
     # Initialize Model & Optimizer
     if config['task'] == "classification":
         criterion = torch.nn.CrossEntropyLoss()
-        target_col = 'age_bin'  # Use age itself as a one year bins for classification
+        target_col = config.get('target', 'age_bin')      # Use age itself as a one year bins for classification
         metric = config.get('metric', 'mae')   # get metric from config, default to accuracy for classification
         out_features = 116 # number of age bins (0-115)
     else:   
-        criterion = torch.nn.MSELoss()
+        if config.get('loss_function', 'MSELoss') == "MAELoss":
+            criterion = torch.nn.L1Loss()
+        else:   
+            criterion = torch.nn.MSELoss()
+        
         target_col = 'age'  # Use actual age for regression
         metric = config.get('metric', 'mae')        # get metric from config, default to mae for regression
         out_features = 1
@@ -71,7 +77,10 @@ def main():
     )
     
     weight_decay=config.get('weight_decay', 0.0)
-    if weight_decay > 0:
+    if config.get('optimizer', 'Adam').lower() == "sgd":
+        print(f"Using SGD optimizer with weight decay: {weight_decay}")
+        optimizer = torch.optim.SGD(model.parameters(), lr=config['learning_rate'], weight_decay=weight_decay, momentum=0.9)
+    elif weight_decay > 0:
         # use adamw
         print(f"Using AdamW optimizer with weight decay: {weight_decay}")
         optimizer = torch.optim.AdamW(model.parameters(), lr=config['learning_rate'], weight_decay=weight_decay)

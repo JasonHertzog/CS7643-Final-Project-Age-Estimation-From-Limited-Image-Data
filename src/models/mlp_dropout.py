@@ -13,7 +13,7 @@ class ResNet18_MLP_Dropout(nn.Module):
             nn.Linear(self.core.num_ftrs, 256),
             nn.ReLU(),
             nn.Dropout(dropout),
-            nn.Linear(256, 1)
+            nn.Linear(256, kwargs.get('out_features', 1))
         )
 
     def forward(self, x):
